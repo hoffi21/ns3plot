@@ -10,4 +10,5 @@ To compare different pcaps it does similar magic as csv.sh does....gnuplot is yo
 
 # Usage
 ./csv.sh foo.pcap
+
 ./compare
