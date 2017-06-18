@@ -7,9 +7,21 @@ dataformat=png
 kind="arrivalcurve"
 j=0
 args_num="$#"
-ARG1=$1
-ARG2=$2
-ARG3=$3
+
+if [ $args_num != 2 ]; then
+    if [ $args_num == 3 ]; then
+        ARG1=$1
+        ARG2=$2
+        ARG3=$3
+    else
+        echo "Please provide at least 2 pcap files but not more than 3!"
+        echo "e.g.: ./arrival.sh foo.pcap bar.pcap"
+        exit
+    fi  
+else
+    ARG1=$1
+    ARG2=$2  
+fi
 
 for i in "$@";
     do
@@ -23,7 +35,11 @@ for i in "$@";
 done 
 
 echo '>>>> merge'
-paste Arrival_TCP_IO_$((args_num-2)) Arrival_TCP_IO_$((args_num-1)) Arrival_TCP_IO_$args_num > Arrival_TCP_IO
+if [ $args_num == 3 ]; then
+    paste Arrival_TCP_IO_$((args_num-2)) Arrival_TCP_IO_$((args_num-1)) Arrival_TCP_IO_$args_num > Arrival_TCP_IO
+else
+    paste Arrival_TCP_IO_$((args_num-1)) Arrival_TCP_IO_$args_num > Arrival_TCP_IO
+fi
 echo '>>>> clean for a greater good'
 for (( k=1; k<=$args_num; k++ ))
 do
@@ -51,7 +67,32 @@ EOF
 echo ">>>> finished"
 }
 
-start=0  ; end=710; plot
-start=0  ; end=30 ; plot
-start=680; end=710; plot
+function plot2 {
+gnuplot <<EOF
+	set terminal $dataformat size 900,500
+	set output '$path$kind-${start}s-${end}s.$dataformat'
+	set datafile separator "|"
+	set xrange [$start:$end]
+	set yrange [0:9000]
+	set xlabel "Zeit(s)"
+	set ylabel "Byte/s"
+	set style line 1 lt 3 lc rgb "orange" lw 1
+	set style line 2 lt 3 lc 3
+	plot \
+	"<(awk 'NR>=13 && NR<=720' Arrival_TCP_IO)" using 0:(\$6+\$12) t '${ARG1}' with lines linestyle 1, \
+    "<(awk 'NR>=13 && NR<=720' Arrival_TCP_IO)" using 0:(\$18+\$24) t '${ARG2}' with lines linestyle 2
+EOF
+echo ">>>> finished"
+}
+
+
+if [ $# == 3 ]; then
+    start=0  ; end=710; plot
+    start=0  ; end=30 ; plot
+    start=680; end=710; plot
+else
+    start=0  ; end=710; plot2
+    start=0  ; end=30 ; plot2
+    start=680; end=710; plot2
+fi
 mv Arrival_TCP_IO $path$kind.TCP_IO
