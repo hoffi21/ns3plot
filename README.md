@@ -8,7 +8,13 @@ With some gnuplot magic it will create PNG-files containing the stream IO inform
 ### compare.sh
 To compare different pcaps it does similar magic as csv.sh does....gnuplot is your best friend.
 
+### arrive.sh
+Want some arrival curves for network calculus?
+Get them here.
+
 # Usage
 ./csv.sh foo.pcap
 
-./compare
+./compare.sh
+
+./arrival.sh foo.pcap bar.pcap test.pcap
