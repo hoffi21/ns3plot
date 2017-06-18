@@ -11,6 +11,8 @@ To compare different pcaps it does similar magic as csv.sh does....gnuplot is yo
 ### arrive.sh
 Want some arrival curves for network calculus?
 Get them here.
+Maximum of 3 pcap files at once.
+Minimum of 2.
 
 # Usage
 ./csv.sh foo.pcap
